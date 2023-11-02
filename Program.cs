@@ -5,7 +5,6 @@ namespace WebScraper
 {
     class Program
     {
-
         static void Main(String[] args)
         {
             string html = @"
@@ -67,7 +66,6 @@ namespace WebScraper
               
                               ";
 
-   
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
             HtmlNodeCollection names = doc.DocumentNode.SelectNodes("//a/img");
@@ -95,8 +93,5 @@ namespace WebScraper
             }
             Console.WriteLine("]");
         }
-
     }
-    
-    
 }
