@@ -7,6 +7,40 @@ namespace WebScraper
     {
         static void Main(String[] args)
         {
+            SaveHtml();
+
+            string path = @"test.html";
+
+            var doc = new HtmlDocument();
+            doc.Load(path);
+            HtmlNodeCollection names = doc.DocumentNode.SelectNodes("//a/img");
+            HtmlNodeCollection prices = doc.DocumentNode.SelectNodes("//span[@class='price-display formatted']");
+            HtmlNodeCollection ratings = doc.DocumentNode.SelectNodes("//div[@class='item']");
+
+            string pattern = "\\$[0-9]*.*.[0-9]*\\$";
+            Console.WriteLine("[");
+            for (int i = 0; i <names.Count; i++)
+            {
+                Console.WriteLine("\t {");
+                Console.WriteLine("\t \"productName\": " +"\"" + System.Web.HttpUtility.HtmlDecode(names[i].GetAttributeValue("alt", "")) + "\"");
+                string newPrice = Regex.Replace(prices[i].InnerText, pattern, String.Empty);
+                
+                Console.WriteLine("\t \"price\": " + "\"" + decimal.Parse(newPrice) + "\"");
+                if (float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) <= 5)
+                {
+                    Console.WriteLine("\t \"rating\": " + "\"" + ratings[i].GetAttributeValue("rating", "N/A") + "\"");
+                }
+                else
+                {
+                    Console.WriteLine("\t \"rating\": " + "\"" + float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) / 2 + "\"");
+                }
+                Console.WriteLine("\t },");
+            }
+            Console.WriteLine("]");
+        }
+
+        private static void SaveHtml()
+        {
             string html = @"
                 <div class=""item"" rating=""3"" data-pdid=""5426"">
                     <figure><a href=""https://www.100percent.co.nz/Product/WCM7000WD/Electrolux-700L-Chest-Freezer""><img
@@ -66,32 +100,10 @@ namespace WebScraper
               
                               ";
 
-            var doc = new HtmlDocument();
+            HtmlDocument doc = new HtmlDocument(); 
             doc.LoadHtml(html);
-            HtmlNodeCollection names = doc.DocumentNode.SelectNodes("//a/img");
-            HtmlNodeCollection prices = doc.DocumentNode.SelectNodes("//span[@class='price-display formatted']");
-            HtmlNodeCollection ratings = doc.DocumentNode.SelectNodes("//div[@class='item']");
 
-            string pattern = "\\$[0-9]*.*.[0-9]*\\$";
-            Console.WriteLine("[");
-            for (int i = 0; i <names.Count; i++)
-            {
-                Console.WriteLine("\t {");
-                Console.WriteLine("\t \"productName\": " +"\"" + System.Web.HttpUtility.HtmlDecode(names[i].GetAttributeValue("alt", "")) + "\"");
-                string newPrice = Regex.Replace(prices[i].InnerText, pattern, String.Empty);
-                //Console.WriteLine("\t \"price\": " + "\"" + Regex.Replace(prices[i].InnerText, pattern, String.Empty) + "\"");
-                Console.WriteLine("\t \"price\": " + "\"" + decimal.Parse(newPrice) + "\"");
-                if (float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) <= 5)
-                {
-                    Console.WriteLine("\t \"rating\": " + "\"" + ratings[i].GetAttributeValue("rating", "N/A") + "\"");
-                }
-                else
-                {
-                    Console.WriteLine("\t \"rating\": " + "\"" + float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) / 2 + "\"");
-                }
-                Console.WriteLine("\t },");
-            }
-            Console.WriteLine("]");
+            doc.Save("test.html");
         }
     }
 }
