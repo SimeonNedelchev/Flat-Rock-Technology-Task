@@ -28,10 +28,7 @@ namespace WebScraper
                 try
                 {
                     Console.WriteLine("\t \"price\": " + "\"" + decimal.Parse(newPrice) + "\"");
-                }
-                catch (FormatException ex) { Console.WriteLine(ex); }
-                try
-                {
+               
                     if (float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) <= 5)
                     {
                         Console.WriteLine("\t \"rating\": " + "\"" + ratings[i].GetAttributeValue("rating", "N/A") + "\"");
