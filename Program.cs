@@ -5,14 +5,15 @@ namespace WebScraper
 {
     class Program
     {
-        static void Main(String[] args)
+        private static void Main(String[] args)
         {
             SaveHtml();
 
             string path = @"test.html";
 
-            var doc = new HtmlDocument();
+            HtmlDocument doc = new HtmlDocument();
             doc.Load(path);
+
             HtmlNodeCollection names = doc.DocumentNode.SelectNodes("//a/img");
             HtmlNodeCollection prices = doc.DocumentNode.SelectNodes("//span[@class='price-display formatted']");
             HtmlNodeCollection ratings = doc.DocumentNode.SelectNodes("//div[@class='item']");
@@ -24,15 +25,25 @@ namespace WebScraper
                 Console.WriteLine("\t {");
                 Console.WriteLine("\t \"productName\": " +"\"" + System.Web.HttpUtility.HtmlDecode(names[i].GetAttributeValue("alt", "")) + "\"");
                 string newPrice = Regex.Replace(prices[i].InnerText, pattern, String.Empty);
-                
-                Console.WriteLine("\t \"price\": " + "\"" + decimal.Parse(newPrice) + "\"");
-                if (float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) <= 5)
+                try
                 {
-                    Console.WriteLine("\t \"rating\": " + "\"" + ratings[i].GetAttributeValue("rating", "N/A") + "\"");
+                    Console.WriteLine("\t \"price\": " + "\"" + decimal.Parse(newPrice) + "\"");
                 }
-                else
+                catch (FormatException ex) { Console.WriteLine(ex); }
+                try
                 {
-                    Console.WriteLine("\t \"rating\": " + "\"" + float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) / 2 + "\"");
+                    if (float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) <= 5)
+                    {
+                        Console.WriteLine("\t \"rating\": " + "\"" + ratings[i].GetAttributeValue("rating", "N/A") + "\"");
+                    }
+                    else
+                    {
+                        Console.WriteLine("\t \"rating\": " + "\"" + float.Parse(ratings[i].GetAttributeValue("rating", "N/A")) / 2 + "\"");
+                    }
+                }
+                catch (FormatException ex)
+                {
+                    Console.WriteLine(ex);
                 }
                 Console.WriteLine("\t },");
             }
